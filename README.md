@@ -1,6 +1,6 @@
 # vueschool-downloader-web-ui
 
-This template should help get you started developing with Vue 3 in Vite.
+#### This Web UI version of [vueschool-downloader](https://github.com/ndriodna/vueschool-downloader)
 
 ## Recommended IDE Setup
 

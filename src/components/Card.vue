@@ -1,12 +1,12 @@
 <script setup>
 import { watchEffect } from 'vue';
 
-const emit = defineEmits(['checked'])
-
+const emit = defineEmits(['selected'])
+const props = defineProps(['check'])
 </script>
 <template>
     <label class="cursor-pointer">
-        <input type="checkbox" @change="$emit('checked', $event.target)" class="peer sr-only">
+        <input type="checkbox" :checked="props.check" @change="$emit('selected', $event.target)" class="peer sr-only">
         <span class="opacity-100 peer-checked:opacity-0 absolute right-2 top-2 z-10 transition-all ">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                 style="fill: rgba(0, 0, 0, 1);">

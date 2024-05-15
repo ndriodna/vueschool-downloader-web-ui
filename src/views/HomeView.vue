@@ -5,16 +5,18 @@ import Filter from '../components/Filter.vue';
 
 const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
-const selectedCourse = ref()
-
 const courses = ref([])
+const checked = ref()
 function selectCourse(id) {
-
   if (courses.value.includes(id)) {
     courses.value.splice(courses.value.indexOf(id), 1)
   } else {
     courses.value.push(id)
   }
+}
+function removeSelected() {
+  courses.value = []
+  checked.value = false
 }
 
 </script>
@@ -22,11 +24,31 @@ function selectCourse(id) {
 <template>
   <main class="px-12">
     <Filter />
-
-    {{ courses }}
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
-      <Card v-for="(d, index) in data" :key="index" class="w-72 relative" @checked="selectCourse(index)"
-        v-model="selectedCourse" />
+      <Card v-for="(d, index) in data" :key="index" class="w-72 relative" @selected="selectCourse(index)"
+        :check="checked" />
+    </div>
+
+    <div class="flex justify-center ">
+      <div v-if="courses.length > 0" class="flex fixed bottom-5">
+        <RouterLink to="/" class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-2">
+          <span class="space-x-2 ">{{ courses.length
+            }} courses</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            style="fill: rgba(255, 255, 255, 1);">
+            <path
+              d="m21.426 11.095-17-8A.999.999 0 0 0 3.03 4.242L4.969 12 3.03 19.758a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81zM5.481 18.197l.839-3.357L12 12 6.32 9.16l-.839-3.357L18.651 12l-13.17 6.197z">
+            </path>
+          </svg>
+        </RouterLink>
+        <div @click="removeSelected()" class="bg-red-600 text-white p-2 rounded-e-lg cursor-pointer"><svg
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            style="fill: rgba(255, 255, 255, 1);">
+            <path
+              d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z">
+            </path>
+          </svg></div>
+      </div>
     </div>
   </main>
 </template>

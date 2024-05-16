@@ -71,7 +71,7 @@ const courses = ref([])
 
 function isChecked(event) {
   datas.value = datas.value.map(val =>
-    val.id === event.id ? { ...val, isSelected: val.isSelected = event.isSelected } : val
+    val.id === event.id ? { ...val, isSelected: val.isSelected = !event.isSelected } : val
   )
 }
 

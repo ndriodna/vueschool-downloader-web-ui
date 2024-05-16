@@ -5,7 +5,7 @@ const emit = defineEmits(['selected'])
 const props = defineProps(['checked', 'data'])
 
 function selectedCourses() {
-    emit('selected', { ...props.data, isSelected: !props.data.isSelected })
+    emit('selected', props.data)
 }
 </script>
 <template>

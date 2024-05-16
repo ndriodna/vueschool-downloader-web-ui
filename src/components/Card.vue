@@ -2,11 +2,15 @@
 import { watchEffect } from 'vue';
 
 const emit = defineEmits(['selected'])
-const props = defineProps(['check'])
+const props = defineProps(['checked', 'data'])
+
+function selectedCourses() {
+    emit('selected', { ...props.data, isSelected: !props.data.isSelected })
+}
 </script>
 <template>
     <label class="cursor-pointer">
-        <input type="checkbox" :checked="props.check" @change="$emit('selected', $event.target)" class="peer sr-only">
+        <input type="checkbox" :checked="props.data.isSelected" @change="selectedCourses" class="peer sr-only">
         <span class="opacity-100 peer-checked:opacity-0 absolute right-2 top-2 z-10 transition-all ">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                 style="fill: rgba(0, 0, 0, 1);">
@@ -29,10 +33,9 @@ const props = defineProps(['check'])
                 <div class="text-red-600 font-mono text-lg uppercase tracking-wide">Premium</div>
             </div>
             <div class=" bg-slate-500 h-40 overflow-hidden rounded-xl ">
-                <img src="https://picsum.photos/200/300" alt="" class="rounded-md w-full bg-contain">
+                <img :src="data.img" alt="" class="rounded-md w-full bg-contain">
             </div>
-            <div class="font-medium text-lg text-justify tracking-tight">Lorem ipsum dolor sit amet, consectetur
-                adipisicing
+            <div class="font-medium text-lg ">{{ data.title }}
                 elit.</div>
             <div class="p-1 bg-[#736CC8] flex justify-between space-x-6 rounded-xl font-bold mb-12 px-2 items-center">
                 <div class="text-white">10 lesson</div>

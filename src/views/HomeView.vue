@@ -3,20 +3,90 @@ import { ref, watch, watchEffect } from 'vue';
 import Card from '../components/Card.vue';
 import Filter from '../components/Filter.vue';
 
-const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+const datas = ref([
+  {
+    id: 7,
+    title: "Learn JavaScript the Fun Way: A Comprehensive Guide to Modern JavaScript Programming Techniques, Including ES6, Async/Await, and More for Aspiring Developers",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=1"
+  },
+  {
+    id: 2,
+    title: "Mastering Python for Beginners: An In-Depth Guide to Python Programming, Covering Basic Syntax, Advanced Topics, and Real-World Projects to Boost Your Coding Skills",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=2"
+  },
+  {
+    id: 9,
+    title: "The Ruby on Rails Tutorial: From Zero to Deployment, A Step-by-Step Guide to Building Web Applications with Ruby on Rails, Including Testing, Security, and Performance Optimization",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=3"
+  },
+  {
+    id: 4,
+    title: "Java for Absolute Beginners: A Practical Introduction to Java Programming, Covering Basic Concepts, Object-Oriented Programming, and Building Real-World Applications",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=4"
+  },
+  {
+    id: 10,
+    title: "Swift Programming: The Big Nerd Ranch Guide: An All-Inclusive Manual for Learning Swift, From the Basics to Advanced Techniques, Including UI Development and Performance Optimization",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=5"
+  },
+  {
+    id: 1,
+    title: "Understanding C++: A Practical Approach: Mastering C++ Programming Through Real-World Examples and Projects, Including Object-Oriented Programming and STL Libraries",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=6"
+  },
+  {
+    id: 5,
+    title: "Kotlin in Action: An Expert Guide to Modern Android Development, Covering Kotlin Syntax, Coroutines, and Building Robust Android Applications with Best Practices",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=7"
+  },
+  {
+    id: 3,
+    title: "Effective TypeScript: 62 Specific Ways to Improve Your TypeScript: A Practical Guide to Enhancing Your TypeScript Skills, Covering Advanced Types, Generics, and Real-World Applications",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=8"
+  },
+  {
+    id: 8,
+    title: "PHP and MySQL Web Development: Creating Dynamic and Interactive Websites, From Basic Syntax to Advanced Techniques, Including Security, Performance Optimization, and Real-World Projects",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=9"
+  },
+  {
+    id: 6,
+    title: "Head First Java: A Brain-Friendly Guide to Java Programming, Covering the Basics of Java, Object-Oriented Programming, and Real-World Examples to Help You Become a Proficient Java Developer",
+    isSelected: false,
+    img: "https://picsum.photos/200?random=10"
+  }
+]);
+
 
 const courses = ref([])
-const checked = ref()
-function selectCourse(id) {
-  if (courses.value.includes(id)) {
-    courses.value.splice(courses.value.indexOf(id), 1)
-  } else {
-    courses.value.push(id)
-  }
+
+function isChecked(event) {
+  datas.value = datas.value.map(val =>
+    val.id === event.id ? { ...val, isSelected: val.isSelected = event.isSelected } : val
+  )
 }
+
 function removeSelected() {
   courses.value = []
-  checked.value = false
+  datas.value = datas.value.map(data => ({ ...data, isSelected: false }))
+}
+
+function selectCourse(event) {
+  if (courses.value.includes(event.id)) {
+    courses.value.splice(courses.value.indexOf(event.id), 1)
+  } else {
+    courses.value.push(event.id)
+  }
+  isChecked(event)
 }
 
 </script>
@@ -25,8 +95,8 @@ function removeSelected() {
   <main class="px-12">
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
-      <Card v-for="(d, index) in data" :key="index" class="w-72 relative" @selected="selectCourse(index)"
-        :check="checked" />
+      <Card v-for="(data, index) in datas" :key="index" :data="data" class="w-72 relative"
+        @selected="selectCourse($event)" :checked="data.isSelected" />
     </div>
 
     <div class="flex justify-center ">

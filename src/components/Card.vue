@@ -38,8 +38,8 @@ function selectedCourses() {
             <div class="font-medium text-lg ">{{ data.title }}
                 elit.</div>
             <div class="p-1 bg-[#736CC8] flex justify-between space-x-6 rounded-xl font-bold mb-12 px-2 items-center">
-                <div class="text-white">10 lesson</div>
-                <div class="text-green-400">Beginner</div>
+                <div class="text-white">{{ data.lesson }} lesson</div>
+                <div class="text-green-400">{{ data.level }}</div>
             </div>
         </div>
     </label>

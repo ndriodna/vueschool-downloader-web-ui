@@ -8,6 +8,11 @@ const router = createRouter({
       name: "home",
       component: () => import("../views/HomeView.vue"),
     },
+    {
+      path: "/download",
+      name: "download",
+      component: () => import("../views/DownloadView.vue"),
+    },
   ],
 });
 

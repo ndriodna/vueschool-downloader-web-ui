@@ -1,22 +1,25 @@
 <script setup>
 import { useCoursesStore } from '@/stores/Courses.js'
 import { useRoute, useRouter } from 'vue-router';
+import Download from '@/components/Download.vue'
+import Overlay from '@/components/Overlay.vue'
+import { ref } from 'vue';
 
-const route = useRoute()
 const router = useRouter()
-const { datas, selected } = useCoursesStore()
-function selectedCourses() {
-    return datas.filter(data => selected.value.includes(data.id))
-}
+const { selected, clearSelected, selectedCourses } = useCoursesStore()
+
+const download = ref(false)
+
 function backHome() {
-    selected.value = []
+    clearSelected()
     router.push({ name: 'home' })
 }
 console.log(selected)
 </script>
 <template>
     <div class="mx-auto max-w-96 py-6">
-        <div v-for="data in selectedCourses()" :key="data.id" class="flex flex-col bg-white rounded-lg px-2 py-1 mb-5 ">
+        <div v-if="selected.length > 0" v-for="data in selectedCourses()" :key="data.id"
+            class="flex flex-col bg-white rounded-lg px-2 py-1 mb-5 ">
             <div class="flex justify-center space-x-6 text-sm font-bold capitalize">
                 <span class="text-blue-500">{{ data.lesson }} lesson</span>
                 <span class="text-orange-300">{{ data.level }}</span>
@@ -35,11 +38,18 @@ console.log(selected)
             </div>
         </div>
         <div class="space-y-2">
-            <div class="p-4 rounded-lg bg-green-500 text-white items-center text-center cursor-pointer">Start Download
+            <div v-if="selected.length > 0" @click="download = !download"
+                class="p-2 rounded-lg bg-green-500 text-white text-center cursor-pointer text-2xl font-bold tracking-wide">
+                Start Download
             </div>
-            <div @click="backHome" class="bg-red-400 text-white p-2 rounded-lg cursor-pointer text-center items-center">
+            <span v-else class="uppercase text-2xl font-bold flex justify-center">please select courses
+                first!</span>
+            <div @click="backHome"
+                class="bg-red-500 font-semibold text-white p-2 rounded-lg cursor-pointer text-center items-center">
                 Back
             </div>
         </div>
     </div>
+    <Overlay v-if="download" />
+    <Download v-if="download" @cancel="download = false" />
 </template>

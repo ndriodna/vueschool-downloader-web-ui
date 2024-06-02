@@ -3,37 +3,7 @@ import { ref, watch, watchEffect } from 'vue';
 import Card from '../components/Card.vue';
 import Filter from '../components/Filter.vue';
 import { useCoursesStore } from '@/stores/Courses.js'
-import { useRouter } from 'vue-router';
-const { datas, selected } = useCoursesStore()
-
-const router = useRouter()
-
-const courses = ref([])
-
-function isChecked(event) {
-  datas.value = datas.map(val =>
-    val.id === event.id ? { ...val, isSelected: val.isSelected = !event.isSelected } : val
-  )
-}
-
-function removeSelected() {
-  courses.value = []
-  datas.value = datas.value.map(data => ({ ...data, isSelected: false }))
-}
-
-function selectCourse(event) {
-  if (courses.value.includes(event.id)) {
-    courses.value.splice(courses.value.indexOf(event.id), 1)
-  } else {
-    courses.value.push(event.id)
-  }
-  isChecked(event)
-}
-
-function download() {
-  selected.value = courses.value
-  router.push({ name: 'download', })
-}
+const { datas, selected, clearSelected, selectCourses } = useCoursesStore()
 
 </script>
 
@@ -42,13 +12,14 @@ function download() {
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
       <Card v-for="(data, index) in datas" :key="index" :data="data" class="w-72 relative"
-        @selected="selectCourse($event)" :checked="data.isSelected" />
+        @selected="selectCourses($event)" :checked="data.isSelected" />
     </div>
 
     <div class="flex justify-center ">
-      <div v-if="courses.length > 0" class="flex fixed bottom-5">
-        <div @click="download()" class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-2 cursor-pointer">
-          <span class="space-x-2 ">{{ courses.length
+      <div v-if="selected.length > 0" class="flex fixed bottom-5">
+        <RouterLink :to="{ name: 'download' }"
+          class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-2 cursor-pointer">
+          <span class="space-x-2 ">{{ selected.length
             }} courses</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             style="fill: rgba(255, 255, 255, 1);">
@@ -56,8 +27,8 @@ function download() {
               d="m21.426 11.095-17-8A.999.999 0 0 0 3.03 4.242L4.969 12 3.03 19.758a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81zM5.481 18.197l.839-3.357L12 12 6.32 9.16l-.839-3.357L18.651 12l-13.17 6.197z">
             </path>
           </svg>
-        </div>
-        <div @click="removeSelected()" class="bg-red-600 text-white p-2 rounded-e-lg cursor-pointer"><svg
+        </RouterLink>
+        <div @click="clearSelected()" class="bg-red-600 text-white p-2 rounded-e-lg cursor-pointer"><svg
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             style="fill: rgba(255, 255, 255, 1);">
             <path

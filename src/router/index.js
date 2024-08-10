@@ -5,14 +5,27 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
+      name: "Index",
       component: () => import("../views/HomeView.vue"),
+      children: [
+        {
+          path: "",
+          name: "home",
+          component: () => import("../views/HomeView.vue"),
+        },
+        {
+          path: "/download",
+          name: "download",
+          component: () => import("../views/DownloadView.vue"),
+        },
+      ]
     },
     {
-      path: "/download",
-      name: "download",
-      component: () => import("../views/DownloadView.vue"),
+      path: "/login",
+      name: 'login',
+      component: () => import("@/views/LoginView.vue")
     },
+
   ],
 });
 

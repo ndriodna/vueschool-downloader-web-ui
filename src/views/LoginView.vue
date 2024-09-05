@@ -1,46 +1,17 @@
 <script setup>
     import InputForm from '@/components/InputForm.vue';
+    import { useWs } from '@/stores/Websocket';
     import axios from 'axios';
-    import { reactive, ref } from 'vue';
+    import { onMounted, onUnmounted, reactive, ref, watch, watchEffect } from 'vue';
+    import SlideTransition from "@/components/SlideTransition.vue"
+    import Notif from '@/components/Notif.vue';
+
+    const wsStore = useWs()
     const auth = reactive({
         email: null,
         password: null,
     })
-    let socket = null
-    const message = ref('')
-    const messages = ref([])
-    async function connectWebSocket() {
-        socket = new WebSocket('ws://localhost:3000', 'Upgrade', {
-            'websocket-key': 'secret-key'
-        });
-
-        socket.addEventListener('open', () => {
-            console.log('WebSocket connection established');
-        });
-
-        socket.addEventListener('message', (event) => {
-            messages.value.push(JSON.parse(event.data));
-        });
-
-        socket.addEventListener('close', () => {
-            console.log('WebSocket connection closed');
-        });
-    };
-
-    async function reconnectWebsocket() {
-        return new Promise((resolve) => {
-            function checkConnection() {
-                setInterval(() => {
-                    if (socket && socket.readyState === WebSocket.OPEN) {
-                        clearInterval(checkConnection)
-                        resolve()
-                    }
-                }, 100);
-            }
-            connectWebSocket()
-            checkConnection()
-        })
-    }
+    const ErrorMsg = ref([])
 
     async function login() {
         try {
@@ -58,29 +29,40 @@
             return res
         } catch (error) {
             console.error('Error:', error.response || error.message);
+            ErrorMsg.value.push({ msg: error.response || error.message, status: true })
         }
     }
     async function loginBrowser() {
-        messages.value = []
+        wsStore.messages = []
         try {
-            if (socket && socket.readyState == WebSocket.OPEN) {
+            if (wsStore.socket && wsStore.socket.readyState == WebSocket.OPEN) {
                 const loginStatus = await login()
                 console.log(loginStatus)
                 if (loginStatus.status == 201) {
-                    socket.send(JSON.stringify({ type: 'login' }))
+                    wsStore.socket.send(JSON.stringify({ type: 'login' }))
                 }
             } else {
-                await reconnectWebsocket()
+                await wsStore.reconnectWebsocket()
                 await loginBrowser()
             }
         } catch (error) {
-            console.log(error)
+            ErrorMsg.value.push({ msg: error, status: true })
         }
     }
+    function removeNotif(index) {
+        ErrorMsg.value.splice(index, 1)
+    }
+
+    watchEffect(() => {
+        if (ErrorMsg.value.length > 0) {
+            setTimeout(() => {
+                ErrorMsg.value.splice(ErrorMsg.value.length - 1, 1)
+            }, 5000);
+        }
+    })
 </script>
 
 <template>
-    {{ messages?.length ? messages[messages?.length - 1].msg : '' }}
     <div class="min-h-screen bg-gradient-to-b from-violet-300 flex justify-center items-center px-12">
         <div class="flex flex-col w-96 rounded-3xl bg-white">
             <div
@@ -99,4 +81,9 @@
             </div>
         </div>
     </div>
+    <<div class="absolute top-6 right-12">
+        <SlideTransition>
+            <Notif v-for="(val, index) in ErrorMsg" :key="index" @close="removeNotif(index)" :msg="val" />
+        </SlideTransition>
+        </div>
 </template>

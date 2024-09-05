@@ -1,6 +1,16 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import Header from "./components/layout/Header.vue";
+  import { onMounted, onUnmounted } from "vue";
+  import { RouterLink, RouterView } from "vue-router";
+  import { useWs } from "./stores/Websocket";
+  const { socket, connectWebsocket } = useWs()
+  onMounted(() => {
+    connectWebsocket()
+  })
+  onUnmounted(() => {
+    if (socket.value) {
+      socket.value.close()
+    }
+  })
 </script>
 
 <template>
@@ -8,7 +18,7 @@ import Header from "./components/layout/Header.vue";
 </template>
 
 <style>
-body {
-  background: #EDF3FF;
-}
+  body {
+    background: #EDF3FF;
+  }
 </style>

@@ -6,27 +6,36 @@ const router = createRouter({
     {
       path: "/",
       name: "Index",
-      component: () => import("../views/HomeView.vue"),
+      component: () => import("../components/layout/Index.vue"),
       children: [
         {
           path: "",
           name: "home",
           component: () => import("../views/HomeView.vue"),
+          meta: { isAuth: true }
         },
         {
           path: "/download",
           name: "download",
           component: () => import("../views/DownloadView.vue"),
+          meta: { isAuth: true }
         },
       ]
     },
     {
       path: "/login",
       name: 'login',
-      component: () => import("@/views/LoginView.vue")
+      component: () => import("../views/LoginView.vue"),
+      meta: { isGuest: true }
     },
 
   ],
 });
 
+router.beforeEach((to, from) => {
+  const isAuth = $cookies.get('token_client')
+  if (to.meta.isAuth && !isAuth) {
+    return { name: "login" }
+  }
+})
 export default router;

@@ -1,25 +1,45 @@
 <script setup>
-import { ref, watch, watchEffect } from 'vue';
-import Card from '../components/Card.vue';
-import Filter from '../components/Filter.vue';
-import { useCoursesStore } from '@/stores/Courses.js'
-const { datas, selected, clearSelected, selectCourses } = useCoursesStore()
+  import { onMounted, ref, watch, watchEffect } from 'vue';
+  import Card from '../components/Card.vue';
+  import Filter from '../components/Filter.vue';
+  import { useCoursesStore } from '@/stores/Courses.js'
+  import api from '@/api/api';
+  import { useWsStore } from '@/stores/Websocket';
+
+  const courseStore = useCoursesStore()
+  const wsStore = useWsStore()
+
+  const getCourse = () => {
+    if (wsStore.isWsOpen()) {
+      const token = $cookies.get('token_client')
+      wsStore.socket.send(JSON.stringify({ type: 'getCourses', token: token }))
+    } else {
+      wsStore.errorMsg = 'disconnected from server, please refresh page'
+    }
+  }
+
+  watch(wsStore.messages, (newMsg) => {
+    if (newMsg.status == 'success') {
+      courseStore.datas.push(newMsg.msg)
+    }
+  })
 
 </script>
 
 <template>
+  <div @click="getCourse">get auth</div>
   <main class="px-12">
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
-      <Card v-for="(data, index) in datas" :key="index" :data="data" class="w-72 relative"
+      <Card v-for="(data, index) in courseStore.datas" :key="index" :data="data" class="w-72 relative"
         @selected="selectCourses($event)" :checked="data.isSelected" />
     </div>
 
     <div class="flex justify-center ">
-      <div v-if="selected.length > 0" class="flex fixed bottom-5">
+      <div v-if="courseStore.selected.length > 0" class="flex fixed bottom-5">
         <RouterLink :to="{ name: 'download' }"
           class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-2 cursor-pointer">
-          <span class="space-x-2 ">{{ selected.length
+          <span class="space-x-2 ">{{ courseStore.selected.length
             }} courses</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             style="fill: rgba(255, 255, 255, 1);">
@@ -36,6 +56,10 @@ const { datas, selected, clearSelected, selectCourses } = useCoursesStore()
             </path>
           </svg></div>
       </div>
+    </div>
+    <div class="absolute top-6 right-12">
+      <Notif :datas="ErrorMsg" @closeNotif="(i) => ErrorMsg.splice(i, 1)" :status="false" />
+      <Notif :datas="LoadingsMsg" @closeNotif="(i) => LoadingsMsg?.splice(i, 1)" :status="true" />
     </div>
   </main>
 </template>

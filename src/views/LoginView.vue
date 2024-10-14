@@ -1,31 +1,29 @@
 <script setup>
     import InputForm from '@/components/InputForm.vue';
-    import { useWs } from '@/stores/Websocket';
+    import { useWsStore } from '@/stores/Websocket';
     import axios from 'axios';
-    import { onMounted, onUnmounted, reactive, ref, watch, watchEffect } from 'vue';
-    import SlideTransition from "@/components/SlideTransition.vue"
+    import { computed, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from 'vue';
     import Notif from '@/components/Notif.vue';
+    import { useRouter } from 'vue-router';
+    import api from '@/api/api';
 
-    const wsStore = useWs()
+    const router = useRouter()
+    const wsStore = useWsStore()
     const auth = reactive({
         email: null,
         password: null,
     })
     const ErrorMsg = ref([])
+    const LoadingsMsg = ref([])
+    const isLoading = ref(false)
 
     async function login() {
         try {
-            const res = await axios({
-                method: 'post',
-                url: 'http://localhost:3000/login',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    email: auth.email,
-                    password: auth.password
-                }
-            });
+            isLoading.value = true
+            const res = await api.post('login', {
+                email: auth.email,
+                password: auth.password
+            })
             return res
         } catch (error) {
             console.error('Error:', error.response || error.message);
@@ -34,11 +32,15 @@
     }
     async function loginBrowser() {
         wsStore.messages = []
+        if (!auth.email?.includes('@')) {
+            ErrorMsg.value.push({ msg: 'please fill your email', status: true })
+            return
+        }
         try {
-            if (wsStore.socket && wsStore.socket.readyState == WebSocket.OPEN) {
+            if (wsStore.isWsOpen()) {
                 const loginStatus = await login()
-                console.log(loginStatus)
                 if (loginStatus.status == 201) {
+                    isLoading.value = false
                     wsStore.socket.send(JSON.stringify({ type: 'login' }))
                 }
             } else {
@@ -49,16 +51,27 @@
             ErrorMsg.value.push({ msg: error, status: true })
         }
     }
-    function removeNotif(index) {
-        ErrorMsg.value.splice(index, 1)
-    }
+
 
     watchEffect(() => {
         if (ErrorMsg.value.length > 0) {
             setTimeout(() => {
-                ErrorMsg.value.splice(ErrorMsg.value.length - 1, 1)
+                ErrorMsg.value.splice(0, 1)
             }, 5000);
         }
+        if (wsStore.messages?.length > 0) {
+            setTimeout(() => {
+                wsStore.loading = ''
+            }, 5000);
+            if (wsStore.messages.status == 'success') {
+                const token = wsStore.messages.msg
+                if (token !== undefined) {
+                    $cookies.set("token_client", token)
+                    router.push({ name: "home" })
+                }
+            }
+        }
+
     })
 </script>
 
@@ -75,15 +88,18 @@
                 <InputForm type="password" name="password" v-model="auth.password" />
             </div>
             <div class="flex justify-center mt-12">
-                <div @click="loginBrowser"
+                <div v-if="!isLoading" @click="loginBrowser"
                     class="capitalize rounded-b-3xl w-full bg-violet-600 p-2 text-white font-bold text-lg text-center cursor-pointer hover:bg-violet-700 focus:bg-violet-600">
                     login</div>
+                <div v-else @click="loginBrowser"
+                    class="rounded-b-3xl w-full bg-violet-700 p-2 text-white font-bold text-lg text-center cursor-not-allowed flex justify-center">
+                    <div class="w-7 h-7 border-b-2 border-white rounded-full animate-spin"></div>
+                </div>
             </div>
         </div>
     </div>
-    <<div class="absolute top-6 right-12">
-        <SlideTransition>
-            <Notif v-for="(val, index) in ErrorMsg" :key="index" @close="removeNotif(index)" :msg="val" />
-        </SlideTransition>
-        </div>
+    <div class="absolute top-6 right-12">
+        <Notif :datas="ErrorMsg" @closeNotif="(i) => ErrorMsg.splice(i, 1)" :status="false" />
+        <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading = ''" :status="true" />
+    </div>
 </template>

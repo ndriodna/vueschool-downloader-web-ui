@@ -1,5 +1,6 @@
 import { ref, computed, reactive } from "vue";
 import { defineStore } from "pinia";
+import { useWsStore } from "./Websocket";
 
 export const useCoursesStore = defineStore("courses", () => {
   const selected = reactive([]);

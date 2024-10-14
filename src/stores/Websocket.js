@@ -2,13 +2,17 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 
-export const useWs = defineStore('websocket', () => {
+export const useWsStore = defineStore('websocket', () => {
     const socket = ref(null)
-    const message = ref(null)
-    const messages = ref([])
+    const loading = ref(null)
+    const messages = ref(null)
     const errorMsg = ref(null)
 
     async function connectWebsocket() {
+        if (socket.value) {
+            console.log('close connection')
+            socket.value.close()
+        }
         socket.value = new WebSocket('ws://localhost:3000', 'Upgrade', {
             'websocket-key': 'secret-key'
         });
@@ -18,7 +22,14 @@ export const useWs = defineStore('websocket', () => {
         });
 
         socket.value.addEventListener('message', (event) => {
-            messages.value.push(JSON.parse(event.data));
+            const parseData = JSON.parse(event.data)
+            if (parseData.status == 'success') {
+                messages.value = parseData
+            } else if (parseData.status == 'loading') {
+                loading.value = parseData
+            } else {
+                errorMsg.value = parseData
+            }
         });
 
         socket.value.addEventListener('close', (event) => {
@@ -32,18 +43,21 @@ export const useWs = defineStore('websocket', () => {
 
     async function reconnectWebsocket() {
         return new Promise((resolve, reject) => {
+
             connectWebsocket()
 
-            setInterval(() => {
-                if (socket && socket.readyState === WebSocket.OPEN) {
+            const checkConnection = setInterval(() => {
+                if (socket.value && socket.value.readyState === WebSocket.OPEN) {
                     clearInterval(checkConnection)
                     resolve()
-                } else {
-                    reject(errorMsg)
                 }
             }, 100);
         })
     }
 
-    return { socket, message, message, connectWebsocket, reconnectWebsocket }
+    function isWsOpen() {
+        return socket.value.readyState === 1
+    }
+
+    return { socket, loading, messages, errorMsg, connectWebsocket, reconnectWebsocket, isWsOpen }
 })

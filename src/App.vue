@@ -1,14 +1,14 @@
 <script setup>
   import { onMounted, onUnmounted } from "vue";
   import { RouterLink, RouterView } from "vue-router";
-  import { useWs } from "./stores/Websocket";
-  const { socket, connectWebsocket } = useWs()
+  import { useWsStore } from "./stores/Websocket";
+  const { socket, connectWebsocket } = useWsStore()
   onMounted(() => {
     connectWebsocket()
   })
   onUnmounted(() => {
-    if (socket.value) {
-      socket.value.close()
+    if (socket) {
+      socket.close()
     }
   })
 </script>

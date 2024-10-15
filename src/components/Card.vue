@@ -1,12 +1,12 @@
 <script setup>
-import { watchEffect } from 'vue';
+    import { watchEffect } from 'vue';
 
-const emit = defineEmits(['selected'])
-const props = defineProps(['checked', 'data'])
+    const emit = defineEmits(['selected'])
+    const props = defineProps(['checked', 'data'])
 
-function selectedCourses() {
-    emit('selected', props.data)
-}
+    function selectedCourses() {
+        emit('selected', props.data)
+    }
 </script>
 <template>
     <label class="cursor-pointer">
@@ -32,11 +32,8 @@ function selectedCourses() {
             <div class="flex justify-start">
                 <div class="text-red-600 font-mono text-lg uppercase tracking-wide">Premium</div>
             </div>
-            <div class=" bg-slate-500 h-40 overflow-hidden rounded-xl ">
-                <img :src="data.img" alt="" class="rounded-md w-full bg-contain">
-            </div>
-            <div class="font-medium text-lg ">{{ data.title }}
-                elit.</div>
+            <img :src="data.thumbnail" alt="" class=" bg-slate-500 h-40 overflow-hidden rounded-xl w-full bg-contain">
+            <div class="font-medium text-lg ">{{ data.title }}</div>
             <div class="p-1 bg-[#736CC8] flex justify-between space-x-6 rounded-xl font-bold mb-12 px-2 items-center">
                 <div class="text-white">{{ data.lesson }} lesson</div>
                 <div class="text-green-400">{{ data.level }}</div>

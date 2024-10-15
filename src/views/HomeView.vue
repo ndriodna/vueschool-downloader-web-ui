@@ -5,34 +5,42 @@
   import { useCoursesStore } from '@/stores/Courses.js'
   import api from '@/api/api';
   import { useWsStore } from '@/stores/Websocket';
+  import Notif from '@/components/Notif.vue';
 
   const courseStore = useCoursesStore()
   const wsStore = useWsStore()
 
-  const getCourse = () => {
-    if (wsStore.isWsOpen()) {
-      const token = $cookies.get('token_client')
-      wsStore.socket.send(JSON.stringify({ type: 'getCourses', token: token }))
-    } else {
-      wsStore.errorMsg = 'disconnected from server, please refresh page'
-    }
-  }
 
-  watch(wsStore.messages, (newMsg) => {
-    if (newMsg.status == 'success') {
-      courseStore.datas.push(newMsg.msg)
+
+  watchEffect(() => {
+    if (!courseStore.isStorageExist()) {
+      courseStore.datas = []
+      if (wsStore.messages?.type == 'getCourses' && wsStore.messages?.status == 'success') {
+        courseStore.datas = wsStore.messages.msg
+        localStorage.setItem('courses', JSON.stringify(courseStore.datas))
+        setTimeout(() => {
+          wsStore.loading.splice(0, 1)
+        }, 2000);
+      }
+    }
+    if (wsStore.messages?.msg.includes('timeout')) {
+      getCourse()
     }
   })
 
 </script>
 
 <template>
-  <div @click="getCourse">get auth</div>
   <main class="px-12">
+    <div class="flex justify-center ">
+      <div @click="courseStore.getCourse()"
+        class="capitalize p-2 rounded-lg text-white cursor-pointer active:bg-violet-900 select-none bg-[#736CC8]">{{
+          courseStore.isStorageExist() ? 'update courses' : 'get courses' }}</div>
+    </div>
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
       <Card v-for="(data, index) in courseStore.datas" :key="index" :data="data" class="w-72 relative"
-        @selected="selectCourses($event)" :checked="data.isSelected" />
+        @selected="courseStore.selectCourses($event)" :checked="data.isSelected" />
     </div>
 
     <div class="flex justify-center ">
@@ -48,7 +56,7 @@
             </path>
           </svg>
         </RouterLink>
-        <div @click="clearSelected()" class="bg-red-600 text-white p-2 rounded-e-lg cursor-pointer"><svg
+        <div @click="courseStore.clearSelected()" class="bg-red-600 text-white p-2 rounded-e-lg cursor-pointer"><svg
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             style="fill: rgba(255, 255, 255, 1);">
             <path
@@ -57,9 +65,9 @@
           </svg></div>
       </div>
     </div>
-    <div class="absolute top-6 right-12">
-      <Notif :datas="ErrorMsg" @closeNotif="(i) => ErrorMsg.splice(i, 1)" :status="false" />
-      <Notif :datas="LoadingsMsg" @closeNotif="(i) => LoadingsMsg?.splice(i, 1)" :status="true" />
-    </div>
   </main>
+  <div class="absolute top-6 right-12">
+    <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg?.splice(i, 1)" :isSuccess="false" />
+    <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading?.splice(i, 1)" :isSuccess="true" />
+  </div>
 </template>

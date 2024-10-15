@@ -34,8 +34,7 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const isAuth = $cookies.get('token_client')
-  if (to.meta.isAuth && !isAuth) {
-    return { name: "login" }
-  }
+  if (to.meta.isAuth && !isAuth) return { name: "login" }
+  if (to.meta.isGuest && isAuth) return { name: 'home' }
 })
 export default router;

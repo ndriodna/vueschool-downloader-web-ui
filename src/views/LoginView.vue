@@ -2,7 +2,7 @@
     import InputForm from '@/components/InputForm.vue';
     import { useWsStore } from '@/stores/Websocket';
     import axios from 'axios';
-    import { computed, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from 'vue';
+    import { reactive, ref, watchEffect } from 'vue';
     import Notif from '@/components/Notif.vue';
     import { useRouter } from 'vue-router';
     import api from '@/api/api';
@@ -13,8 +13,6 @@
         email: null,
         password: null,
     })
-    const ErrorMsg = ref([])
-    const LoadingsMsg = ref([])
     const isLoading = ref(false)
 
     async function login() {
@@ -27,20 +25,19 @@
             return res
         } catch (error) {
             console.error('Error:', error.response || error.message);
-            ErrorMsg.value.push({ msg: error.response || error.message, status: true })
+            wsStore.errorMsg.push({ msg: error.response || error.message, status: true })
         }
     }
     async function loginBrowser() {
         wsStore.messages = []
         if (!auth.email?.includes('@')) {
-            ErrorMsg.value.push({ msg: 'please fill your email', status: true })
+            wsStore.errorMsg.push({ msg: 'please fill your email', status: true })
             return
         }
         try {
             if (wsStore.isWsOpen()) {
                 const loginStatus = await login()
                 if (loginStatus.status == 201) {
-                    isLoading.value = false
                     wsStore.socket.send(JSON.stringify({ type: 'login' }))
                 }
             } else {
@@ -48,27 +45,28 @@
                 await loginBrowser()
             }
         } catch (error) {
-            ErrorMsg.value.push({ msg: error, status: true })
+            wsStore.errorMsg.push({ msg: error, status: true })
         }
     }
 
 
     watchEffect(() => {
-        if (ErrorMsg.value.length > 0) {
+        if (wsStore.errorMsg.length > 0) {
             setTimeout(() => {
-                ErrorMsg.value.splice(0, 1)
+                wsStore.errorMsg.splice(0, 1)
             }, 5000);
         }
-        if (wsStore.messages?.length > 0) {
+        if (wsStore.loading?.length > 0) {
             setTimeout(() => {
                 wsStore.loading = ''
             }, 5000);
-            if (wsStore.messages.status == 'success') {
-                const token = wsStore.messages.msg
-                if (token !== undefined) {
-                    $cookies.set("token_client", token)
-                    router.push({ name: "home" })
-                }
+        }
+        if (wsStore.messages?.status == 'success') {
+            const token = wsStore.messages.msg
+            if (token !== undefined) {
+                isLoading.value = false
+                $cookies.set("token_client", token)
+                router.push({ name: "home" })
             }
         }
 
@@ -99,7 +97,7 @@
         </div>
     </div>
     <div class="absolute top-6 right-12">
-        <Notif :datas="ErrorMsg" @closeNotif="(i) => ErrorMsg.splice(i, 1)" :status="false" />
-        <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading = ''" :status="true" />
+        <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg.splice(i, 1)" :isSusccess="false" />
+        <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading.splice(i, 1)" :isSusccess="true" />
     </div>
 </template>

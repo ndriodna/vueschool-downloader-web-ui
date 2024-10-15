@@ -3,8 +3,25 @@ import { defineStore } from "pinia";
 import { useWsStore } from "./Websocket";
 
 export const useCoursesStore = defineStore("courses", () => {
+  const wsStore = useWsStore()
+
   const selected = reactive([]);
-  const datas = reactive();
+  const datas = reactive(JSON.parse(localStorage.getItem('courses')) || []);
+
+  function isStorageExist() {
+    return localStorage.getItem('courses') ? true : false
+  }
+
+  function getCourse() {
+    if (wsStore.isWsOpen()) {
+      if (isStorageExist()) {
+        datas.splice(0, datas.length)
+        localStorage.removeItem('courses')
+      }
+      const token = $cookies.get('token_client')
+      wsStore.socket.send(JSON.stringify({ type: 'getCourses', token: token }))
+    }
+  }
 
   function isChecked(event) {
     datas.map((val) =>
@@ -23,7 +40,11 @@ export const useCoursesStore = defineStore("courses", () => {
     if (selected.includes(event.id)) {
       selected.splice(selected.indexOf(event.id), 1);
     } else {
-      selected.push(event.id);
+      if (selected.length > 3) {
+        selected.push(event.id)
+      } else {
+        wsStore.errorMsg.value = `can't select course more than 3`
+      }
     }
     isChecked(event);
   }
@@ -37,5 +58,7 @@ export const useCoursesStore = defineStore("courses", () => {
     clearSelected,
     selectCourses,
     selectedCourses,
+    isStorageExist,
+    getCourse
   };
 });

@@ -4,9 +4,9 @@ import { ref } from "vue";
 
 export const useWsStore = defineStore('websocket', () => {
     const socket = ref(null)
-    const loading = ref(null)
+    const loading = ref([])
     const messages = ref(null)
-    const errorMsg = ref(null)
+    const errorMsg = ref([])
 
     async function connectWebsocket() {
         if (socket.value) {
@@ -26,9 +26,9 @@ export const useWsStore = defineStore('websocket', () => {
             if (parseData.status == 'success') {
                 messages.value = parseData
             } else if (parseData.status == 'loading') {
-                loading.value = parseData
+                loading.value.push(parseData)
             } else {
-                errorMsg.value = parseData
+                errorMsg.value.push(parseData)
             }
         });
 
@@ -36,8 +36,7 @@ export const useWsStore = defineStore('websocket', () => {
             console.log('WebSocket connection closed');
         });
         socket.value.addEventListener('error', (error) => {
-            errorMsg.value = 'failed connect to websocket'
-            throw new Error('failed connect to websocket')
+            errorMsg.value.push({ msg: 'failed connect to websocket' })
         })
     }
 
@@ -56,7 +55,8 @@ export const useWsStore = defineStore('websocket', () => {
     }
 
     function isWsOpen() {
-        return socket.value.readyState === 1
+        const readyState = socket.value.readyState === 1
+        return readyState ? readyState : errorMsg.value.push({ msg: 'disconnected from server, please refresh page' })
     }
 
     return { socket, loading, messages, errorMsg, connectWebsocket, reconnectWebsocket, isWsOpen }

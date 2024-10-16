@@ -5,7 +5,7 @@ import { useWsStore } from "./Websocket";
 export const useCoursesStore = defineStore("courses", () => {
   const wsStore = useWsStore()
 
-  const selected = reactive([]);
+  const selected = ref([]);
   const datas = reactive(JSON.parse(localStorage.getItem('courses')) || []);
 
   function isStorageExist() {
@@ -32,24 +32,23 @@ export const useCoursesStore = defineStore("courses", () => {
   }
 
   function clearSelected() {
-    selected.length = 0;
+    selected.value = []
     datas.map((data) => (data.isSelected = false));
   }
 
   function selectCourses(event) {
-    if (selected.includes(event.id)) {
-      selected.splice(selected.indexOf(event.id), 1);
+    if (selected.value.includes(event.id)) {
+      selected.value.splice(selected.value.indexOf(event.id), 1);
+    } else if (selected.value.length < 3) {
+      selected.value.push(event.id)
+      isChecked(event);
     } else {
-      if (selected.length > 3) {
-        selected.push(event.id)
-      } else {
-        wsStore.errorMsg.value = `can't select course more than 3`
-      }
+      wsStore.errorMsg.push({ msg: `can't select course more than 3` })
+      return
     }
-    isChecked(event);
   }
   function selectedCourses() {
-    return datas.filter((data) => selected.includes(data.id));
+    return datas.filter((data) => selected.value.includes(data.id));
   }
   return {
     selected,

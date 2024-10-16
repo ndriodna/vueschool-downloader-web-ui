@@ -53,18 +53,14 @@
     watchEffect(() => {
         if (wsStore.errorMsg.length > 0) {
             setTimeout(() => {
-                wsStore.errorMsg.splice(0, 1)
-            }, 5000);
-        }
-        if (wsStore.loading?.length > 0) {
-            setTimeout(() => {
-                wsStore.loading = ''
+                wsStore.errorMsg.shift()
             }, 5000);
         }
         if (wsStore.messages?.status == 'success') {
             const token = wsStore.messages.msg
             if (token !== undefined) {
                 isLoading.value = false
+                wsStore.loading = ''
                 $cookies.set("token_client", token)
                 router.push({ name: "home" })
             }
@@ -97,7 +93,7 @@
         </div>
     </div>
     <div class="absolute top-6 right-12">
-        <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg.splice(i, 1)" :isSusccess="false" />
-        <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading.splice(i, 1)" :isSusccess="true" />
+        <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg.splice(i, 1)" :isSuccess="false" />
+        <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading.splice(i, 1)" :isSuccess="true" />
     </div>
 </template>

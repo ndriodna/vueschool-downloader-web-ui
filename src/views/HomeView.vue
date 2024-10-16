@@ -26,6 +26,11 @@
     if (wsStore.messages?.msg.includes('timeout')) {
       getCourse()
     }
+    if (wsStore.errorMsg.length > 0) {
+      setTimeout(() => {
+        wsStore.errorMsg.shift()
+      }, 2000)
+    }
   })
 
 </script>

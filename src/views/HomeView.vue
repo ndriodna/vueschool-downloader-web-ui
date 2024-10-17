@@ -45,7 +45,7 @@
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
       <Card v-for="(data, index) in courseStore.datas" :key="index" :data="data" class="w-72 relative"
-        @selected="courseStore.selectCourses($event)" :checked="data.isSelected" />
+        @selected="courseStore.selectCourses($event)" :checked="data.isSelected" :selectedItem="courseStore.selected" />
     </div>
 
     <div class="flex justify-center ">

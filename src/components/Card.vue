@@ -2,16 +2,23 @@
     import { watchEffect } from 'vue';
 
     const emit = defineEmits(['selected'])
-    const props = defineProps(['checked', 'data'])
+    const props = defineProps(['checked', 'data', "selectedItem"])
 
     function selectedCourses() {
-        emit('selected', props.data)
+        if (!isNotSelected()) {
+            emit('selected', props.data)
+        }
+    }
+    function isNotSelected() {
+        return props.selectedItem.length >= 3 && !props.data.isSelected
     }
 </script>
 <template>
-    <label class="cursor-pointer">
-        <input type="checkbox" :checked="props.data.isSelected" @change="selectedCourses" class="peer sr-only">
-        <span class="opacity-100 peer-checked:opacity-0 absolute right-2 top-2 z-10 transition-all ">
+    <label :class="[isNotSelected() ? 'cursor-not-allowed select-none' : 'cursor-pointer']">
+        <input type="checkbox" :checked="props.data.isSelected" @change="selectedCourses" class="peer sr-only"
+            :disabled="isNotSelected()">
+        <span :class="[isNotSelected() ? 'opacity-0 peer-checked:opacity-0' : 'opacity-100 peer-checked:opacity-0']"
+            class=" absolute right-2 top-2 z-10 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                 style="fill: rgba(0, 0, 0, 1);">
                 <path
@@ -19,7 +26,8 @@
                 </path>
             </svg>
         </span>
-        <span class="opacity-0 peer-checked:opacity-100 absolute right-2 top-2 z-10">
+        <span :class="[isNotSelected() ? 'opacity-0 peer-checked:opacity-0' : 'opacity-0 peer-checked:opacity-100']"
+            class=" absolute right-2 top-2 z-10">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                 style="fill: rgba(22, 163, 74, 1);">
                 <path
@@ -27,8 +35,8 @@
                 </path>
             </svg>
         </span>
-        <div
-            class="transition-all active:scale-90 flex flex-col space-y-4 justify-center rounded-lg bg-white px-8 py-8 ring ring-transparent peer-checked:ring-green-500">
+        <div :class="[isNotSelected() ? 'blur-sm' : 'bg-white peer-checked:ring-green-500 active:scale-90']"
+            class="transition-all  flex flex-col space-y-4 justify-center rounded-lg px-8 py-8 ring ring-transparent ">
             <div class="flex justify-start">
                 <div class="text-red-600 font-mono text-lg uppercase tracking-wide">Premium</div>
             </div>

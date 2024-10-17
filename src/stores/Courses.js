@@ -37,15 +37,16 @@ export const useCoursesStore = defineStore("courses", () => {
   }
 
   function selectCourses(event) {
+    console.log('ini event select', event.id)
     if (selected.value.includes(event.id)) {
       selected.value.splice(selected.value.indexOf(event.id), 1);
     } else if (selected.value.length < 3) {
       selected.value.push(event.id)
-      isChecked(event);
     } else {
       wsStore.errorMsg.push({ msg: `can't select course more than 3` })
       return
     }
+    isChecked(event);
   }
   function selectedCourses() {
     return datas.filter((data) => selected.value.includes(data.id));

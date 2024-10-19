@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import router from "@/router";
 
 
 export const useWsStore = defineStore('websocket', () => {
@@ -7,6 +8,7 @@ export const useWsStore = defineStore('websocket', () => {
     const loading = ref([])
     const messages = ref(null)
     const errorMsg = ref([])
+    const downloadLog = ref([])
 
     async function connectWebsocket() {
         if (socket.value) {
@@ -27,6 +29,11 @@ export const useWsStore = defineStore('websocket', () => {
                 messages.value = parseData
             } else if (parseData.status == 'loading') {
                 loading.value.push(parseData)
+            } else if (parseData.type == 'download') {
+                downloadLog.push(...parseData)
+            } else if (parseData.msg.includes('not found')) {
+                $cookies.remove('token_client')
+                router.push({ name: 'login' })
             } else {
                 errorMsg.value.push(parseData)
             }

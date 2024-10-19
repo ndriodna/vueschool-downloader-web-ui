@@ -24,12 +24,12 @@
       }
     }
     if (wsStore.messages?.msg.includes('timeout')) {
-      getCourse()
+      courseStore.getCourse()
     }
     if (wsStore.errorMsg.length > 0) {
       setTimeout(() => {
         wsStore.errorMsg.shift()
-      }, 2000)
+      }, 5000)
     }
   })
 
@@ -45,14 +45,15 @@
     <Filter />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
       <Card v-for="(data, index) in courseStore.datas" :key="index" :data="data" class="w-72 relative"
-        @selected="courseStore.selectCourses($event)" :checked="data.isSelected" :selectedItem="courseStore.selected" />
+        @selected="courseStore.selectCourses($event)" :checked="data.isSelected" :selectedItem="courseStore.selected"
+        :max-batch="courseStore.maxBatch" />
     </div>
 
     <div class="flex justify-center ">
-      <div v-if="courseStore.selected.length > 0" class="flex fixed bottom-5">
-        <RouterLink :to="{ name: 'download' }"
-          class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-2 cursor-pointer">
-          <span class="space-x-2 ">{{ courseStore.selected.length
+      <div v-if="courseStore.selected.length > 0" class="flex fixed bottom-10">
+        <RouterLink :to="{ name: 'selectcourse' }"
+          class="px-4 py-2 bg-green-500 rounded-s-lg text-white flex space-x-4 cursor-pointer font-semibold">
+          <span class="space-x-2">{{ courseStore.selected.length
             }} courses</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             style="fill: rgba(255, 255, 255, 1);">
@@ -71,7 +72,7 @@
       </div>
     </div>
   </main>
-  <div class="absolute top-6 right-12">
+  <div class="fixed top-10 right-12 z-[999]">
     <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg?.splice(i, 1)" :isSuccess="false" />
     <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading?.splice(i, 1)" :isSuccess="true" />
   </div>

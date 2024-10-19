@@ -15,9 +15,9 @@ const router = createRouter({
           meta: { isAuth: true }
         },
         {
-          path: "/download",
-          name: "download",
-          component: () => import("../views/DownloadView.vue"),
+          path: "/selectcourse",
+          name: "selectcourse",
+          component: () => import("../views/SelectCourse.vue"),
           meta: { isAuth: true }
         },
       ]

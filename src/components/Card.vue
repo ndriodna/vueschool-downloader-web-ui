@@ -2,7 +2,7 @@
     import { watchEffect } from 'vue';
 
     const emit = defineEmits(['selected'])
-    const props = defineProps(['checked', 'data', "selectedItem"])
+    const props = defineProps(['checked', 'data', "selectedItem", "maxBatch"])
 
     function selectedCourses() {
         if (!isNotSelected()) {
@@ -10,7 +10,7 @@
         }
     }
     function isNotSelected() {
-        return props.selectedItem.length >= 3 && !props.data.isSelected
+        return props.selectedItem.length >= props.maxBatch && !props.data.isSelected
     }
 </script>
 <template>

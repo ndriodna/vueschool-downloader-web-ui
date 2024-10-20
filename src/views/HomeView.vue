@@ -18,13 +18,16 @@
       if (wsStore.messages?.type == 'getCourses' && wsStore.messages?.status == 'success') {
         courseStore.datas = wsStore.messages.msg
         localStorage.setItem('courses', JSON.stringify(courseStore.datas))
-        setTimeout(() => {
-          wsStore.loading.splice(0, 1)
-        }, 2000);
+        wsStore.messages = []
       }
     }
-    if (wsStore.messages?.msg.includes('timeout')) {
+    if (wsStore.messages?.msg?.includes('timeout')) {
       courseStore.getCourse()
+    }
+    if (wsStore.loading.length > 0) {
+      setTimeout(() => {
+        wsStore.loading.splice(0, 1)
+      }, 2000);
     }
     if (wsStore.errorMsg.length > 0) {
       setTimeout(() => {

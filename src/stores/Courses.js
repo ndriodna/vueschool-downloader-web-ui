@@ -9,7 +9,6 @@ export const useCoursesStore = defineStore("courses", () => {
   const datas = reactive(JSON.parse(localStorage.getItem('courses')) || []);
   const maxBatch = ref(5)
   const lessons = reactive([])
-  const selectedLessons = ref([])
 
   function isStorageExist() {
     return localStorage.getItem('courses') ? true : false
@@ -32,6 +31,7 @@ export const useCoursesStore = defineStore("courses", () => {
   }
   function clearSelected() {
     selected.value = []
+    lessons.length = 0
     datas.map((data) => (data.isSelected = false));
   }
 
@@ -54,20 +54,17 @@ export const useCoursesStore = defineStore("courses", () => {
 
   function getLessons() {
     if (!wsStore.isWsOpen()) return
+    lessons.splice(0)
     const token = $cookies.get('token_client')
     wsStore.socket.send(JSON.stringify({ type: 'getSelectedLesson', token: token, selected: selectedCourses() }))
   }
 
-  function seletLessons() {
-    return lessons.filter(data => selectedLessons.value.includes(data.id))
-  }
 
   return {
     selected,
     datas,
     maxBatch,
     lessons,
-    selectedLessons,
     isChecked,
     clearSelected,
     selectCourses,
@@ -76,6 +73,5 @@ export const useCoursesStore = defineStore("courses", () => {
     getCourse,
     removeSelected,
     getLessons,
-    seletLessons
   };
 });

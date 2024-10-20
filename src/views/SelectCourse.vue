@@ -19,13 +19,18 @@
     }
     watchEffect(() => {
         if (wsStore.messages?.type == 'getSelectedLesson' && wsStore.messages?.status == 'success') {
-            courseStore.lessons = wsStore.messages.msg
+            console.log('success selalu')
+            Object.assign(courseStore.lessons, wsStore.messages.msg)
+            console.log('success end')
+            wsStore.messages = []
+        }
+        if (wsStore.messages?.msg?.includes('timeout')) {
+            courseStore.getLessons()
+        }
+        if (wsStore.loading.length > 0) {
             setTimeout(() => {
                 wsStore.loading.shift()
             }, 2000);
-        }
-        if (wsStore.messages?.msg.includes('timeout')) {
-            courseStore.getLessons()
         }
         if (wsStore.errorMsg.length > 0) {
             setTimeout(() => {
@@ -35,10 +40,9 @@
     })
 </script>
 <template>
-    <div class="mx-auto max-w-96 py-6">
-        <div v-if="courseStore.selected.length > 0 || courseStore.lessons.length < 0"
-            v-for="(data, index) in courseStore.selectedCourses()" :key="data.id"
-            class="flex justify-center px-2 py-1 mb-5 w-full rounded-lg bg-white items-center">
+    <div v-if="courseStore.lessons.length <= 0" class="mx-auto max-w-96 py-6">
+        <div v-if="courseStore.selected.length > 0" v-for="(data, index) in courseStore.selectedCourses()"
+            :key="data.id" class="flex justify-center px-2 py-1 mb-5 w-full rounded-lg bg-white items-center">
             <div class="flex flex-col w-full">
                 <div class="flex justify-center space-x-6 text-sm font-bold capitalize">
                     <span class="text-blue-500">{{ data.lesson }} lesson</span>
@@ -60,25 +64,32 @@
         </div>
 
         <div class="space-y-2">
-            <div v-if="courseStore.selected.length > 0 || courseStore.lessons.length < 0"
-                @click="courseStore.getLessons"
+            <div v-if="courseStore.selected.length > 0" @click="courseStore.getLessons"
                 class="p-2 rounded-lg bg-green-500 text-white text-center cursor-pointer text-2xl font-bold tracking-wide capitalize select-none">
                 get lessons
             </div>
             <span v-else class="uppercase text-2xl font-bold flex justify-center">please select courses
                 first!</span>
-            <div @click="backHome"
-                class="bg-red-500 font-semibold text-white p-2 rounded-lg cursor-pointer text-center items-center">
-                Back
+        </div>
+    </div>
+    <div @click="backHome"
+        class="mx-auto max-w-96 bg-red-500 font-semibold text-white p-2 rounded-lg cursor-pointer text-center items-center">
+        Back
+    </div>
+    <div v-if="courseStore.lessons.length > 0">
+        <div class="flex flex-wrap justify-center px-12">
+            <div v-for="lesson in courseStore.lessons" class="flex flex-col bg-white rounded-lg p-4 max-w-96 m-2">
+                <span class="font-semibold text-xl my-2">{{ lesson.title }}</span>
+                <span class="text-blue-400 text-lg">{{ lesson.urls.length }} lessons</span>
+                <div v-for="(urls, index) in lesson.urls" class="my-2">
+                    {{ index + 1 }}.
+                    <a :href="urls.url" class="text-blue-400">{{ urls.titleLesson }}</a>
+                </div>
             </div>
         </div>
-
-        <div v-if="courseStore.lessons.length > 0" class="flex">
-            <div v-for="lesson in courseStore.lessons">
-                {{ lesson.title }}
-                {{ lesson.urls }}
-            </div>
-        </div>
+        <div
+            class="fixed bottom-0 w-full mt-4 p-2 rounded-t-lg bg-green-500 text-white text-center cursor-pointer text-2xl font-bold capitalize tracking-wide select-none">
+            download</div>
     </div>
     <Overlay v-if="download" />
     <Download v-if="download" @cancel="download = false" />

@@ -4,7 +4,7 @@
     import Download from '@/components/Download.vue'
     import Overlay from '@/components/Overlay.vue'
     import Notif from '@/components/Notif.vue';
-    import { ref, watchEffect } from 'vue';
+    import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
     import { useWsStore } from '@/stores/Websocket';
 
     const router = useRouter()
@@ -17,11 +17,15 @@
         courseStore.clearSelected()
         router.push({ name: 'home' })
     }
+    onMounted(() => {
+        wsStore.reconnectWebsocket()
+    })
+    onUnmounted(() => {
+        courseStore.lessons.splice(0)
+    })
     watchEffect(() => {
         if (wsStore.messages?.type == 'getSelectedLesson' && wsStore.messages?.status == 'success') {
-            console.log('success selalu')
-            Object.assign(courseStore.lessons, wsStore.messages.msg)
-            console.log('success end')
+            courseStore.lessons = wsStore.messages.msg
             wsStore.messages = []
         }
         if (wsStore.messages?.msg?.includes('timeout')) {

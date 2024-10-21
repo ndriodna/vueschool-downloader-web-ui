@@ -12,6 +12,9 @@
     function isNotSelected() {
         return props.selectedItem.length >= props.maxBatch && !props.data.isSelected
     }
+    function catColor(data) {
+        return data.toLowerCase() == 'premium' ? 'text-red-600' : (data.toLowerCase() == 'free' ? 'text-green-600' : 'text-yellow-600')
+    }
 </script>
 <template>
     <label :class="[isNotSelected() ? 'cursor-not-allowed select-none' : 'cursor-pointer']">
@@ -38,13 +41,14 @@
         <div :class="[isNotSelected() ? 'blur-sm' : 'bg-white peer-checked:ring-green-500 active:scale-90']"
             class="transition-all  flex flex-col space-y-4 justify-center rounded-lg px-8 py-8 ring ring-transparent ">
             <div class="flex justify-start">
-                <div class="text-red-600 font-mono text-lg uppercase tracking-wide">Premium</div>
+                <div :class="[catColor(data.cat)]" class=" font-semibold text-lg uppercase tracking-wide">{{ data.cat }}
+                </div>
             </div>
             <img :src="data.thumbnail" alt="" class=" bg-slate-500 h-40 overflow-hidden rounded-xl w-full bg-contain">
             <div class="font-medium text-lg ">{{ data.title }}</div>
-            <div class="p-1 bg-[#736CC8] flex justify-between space-x-6 rounded-xl font-bold mb-12 px-2 items-center">
-                <div class="text-white">{{ data.lesson }} lesson</div>
-                <div class="text-green-400">{{ data.level }}</div>
+            <div v-if="!data.cat.toLowerCase().includes('soon')"
+                class="p-1 bg-[#736CC8] flex justify-between space-x-6 rounded-xl font-bold mb-12 px-2 items-center">
+                <div class="text-white">{{ data.lessons }}</div>
             </div>
         </div>
     </label>

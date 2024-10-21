@@ -7,7 +7,7 @@ export const useCoursesStore = defineStore("courses", () => {
 
   const selected = ref([]);
   const datas = reactive(JSON.parse(localStorage.getItem('courses')) || []);
-  const maxBatch = ref(5)
+  const maxBatch = ref(3)
   const lessons = reactive([])
 
   function isStorageExist() {
@@ -31,7 +31,7 @@ export const useCoursesStore = defineStore("courses", () => {
   }
   function clearSelected() {
     selected.value = []
-    lessons.length = 0
+    lessons.splice(0)
     datas.map((data) => (data.isSelected = false));
   }
 

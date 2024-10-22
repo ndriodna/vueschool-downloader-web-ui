@@ -25,7 +25,11 @@
     })
     watchEffect(() => {
         if (wsStore.messages?.type == 'getSelectedLesson' && wsStore.messages?.status == 'success') {
-            courseStore.lessons = wsStore.messages.msg
+            Object.assign(courseStore.lessons, wsStore.messages.msg)
+            wsStore.messages = []
+        }
+        if (wsStore.messages?.type == 'getEachVideo' && wsStore.messages?.status == 'success') {
+            Object.assign(courseStore.videoLessons, wsStore.messages.msg)
             wsStore.messages = []
         }
         if (wsStore.messages?.msg?.includes('timeout')) {
@@ -91,7 +95,7 @@
                 </div>
             </div>
         </div>
-        <div
+        <div @click="courseStore.getVideoLesson"
             class="fixed bottom-0 w-full mt-4 p-2 rounded-t-lg bg-green-500 text-white text-center cursor-pointer text-2xl font-bold capitalize tracking-wide select-none">
             download</div>
     </div>

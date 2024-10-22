@@ -10,7 +10,7 @@
         }
     }
     function isNotSelected() {
-        return props.selectedItem.length >= props.maxBatch && !props.data.isSelected
+        return props.selectedItem.length >= props.maxBatch && !props.data.checked
     }
     function catColor(data) {
         return data.toLowerCase() == 'premium' ? 'text-red-600' : (data.toLowerCase() == 'free' ? 'text-green-600' : 'text-yellow-600')
@@ -18,7 +18,7 @@
 </script>
 <template>
     <label :class="[isNotSelected() ? 'cursor-not-allowed select-none' : 'cursor-pointer']">
-        <input type="checkbox" :checked="props.data.isSelected" @change="selectedCourses" class="peer sr-only"
+        <input type="checkbox" :checked="props.data.checked" @change="selectedCourses" class="peer sr-only"
             :disabled="isNotSelected()">
         <span :class="[isNotSelected() ? 'opacity-0 peer-checked:opacity-0' : 'opacity-100 peer-checked:opacity-0']"
             class=" absolute right-2 top-2 z-10 transition-all">

@@ -1,5 +1,5 @@
 <script setup>
-  import { onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, onMounted, ref, watch, watchEffect } from 'vue';
   import Card from '../components/Card.vue';
   import Filter from '../components/Filter.vue';
   import { useCoursesStore } from '@/stores/Courses.js'
@@ -10,7 +10,14 @@
   const courseStore = useCoursesStore()
   const wsStore = useWsStore()
 
+  const filter = ref()
 
+  const filteredData = computed(() => {
+    if (filter.value?.length > 0) {
+      return courseStore.filterTypeCourse(filter.value)
+    }
+    return courseStore.datas
+  })
 
   watchEffect(() => {
     if (!courseStore.isStorageExist()) {
@@ -45,9 +52,9 @@
         class="capitalize p-2 rounded-lg text-white cursor-pointer active:bg-violet-900 select-none bg-[#736CC8]">{{
           courseStore.isStorageExist() ? 'update courses' : 'get courses' }}</div>
     </div>
-    <Filter />
+    <Filter v-model="filter" />
     <div class="flex flex-auto flex-wrap justify-between py-2 gap-4">
-      <Card v-for="(data, index) in courseStore.datas" :key="index" :data="data" class="w-72 relative"
+      <Card v-for="(data, index) in filteredData" :key="index" :data="data" class="w-72 relative"
         @selected="courseStore.selectCourses($event)" :checked="data.isSelected" :selectedItem="courseStore.selected"
         :max-batch="courseStore.maxBatch" />
     </div>

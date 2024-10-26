@@ -29,7 +29,7 @@ export const useWsStore = defineStore('websocket', () => {
                 messages.value = parseData
             } else if (parseData.status == 'loading') {
                 loading.value.push(parseData)
-            } else if (parseData.type == 'download') {
+            } else if (parseData.type == 'downloader') {
                 downloadLog.push(...parseData)
             } else if (parseData.msg.includes('not found')) {
                 $cookies.remove('token_client')
@@ -63,8 +63,13 @@ export const useWsStore = defineStore('websocket', () => {
 
     function isWsOpen() {
         const readyState = socket.value.readyState === 1
-        return readyState ? readyState : errorMsg.value.push({ msg: 'disconnected from server, please refresh page' })
+        if (readyState) {
+            return readyState
+        } else {
+            errorMsg.value.push({ msg: 'disconnected from server, please refresh page' })
+            return false
+        }
     }
 
-    return { socket, loading, messages, errorMsg, connectWebsocket, reconnectWebsocket, isWsOpen }
+    return { socket, loading, messages, errorMsg, downloadLog, connectWebsocket, reconnectWebsocket, isWsOpen }
 })

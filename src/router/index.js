@@ -17,7 +17,7 @@ const router = createRouter({
         {
           path: "/selectcourse",
           name: "selectcourse",
-          component: () => import("../views/SelectCourse.vue"),
+          component: () => import("../views/SelectedView.vue"),
           meta: { isAuth: true }
         },
       ]

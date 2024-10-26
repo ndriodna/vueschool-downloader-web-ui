@@ -35,14 +35,14 @@
             return
         }
         try {
-            if (wsStore.isWsOpen()) {
+            if (!wsStore.isWsOpen()) {
+                await wsStore.reconnectWebsocket()
+                await loginBrowser()
+            } else {
                 const loginStatus = await login()
                 if (loginStatus.status == 201) {
                     wsStore.socket.send(JSON.stringify({ type: 'login' }))
                 }
-            } else {
-                await wsStore.reconnectWebsocket()
-                await loginBrowser()
             }
         } catch (error) {
             wsStore.errorMsg.push({ msg: error, status: true })

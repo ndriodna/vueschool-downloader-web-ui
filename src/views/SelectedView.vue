@@ -6,16 +6,26 @@
     import Notif from '@/components/Notif.vue';
     import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
     import { useWsStore } from '@/stores/Websocket';
+    import { useDownloadStore } from '@/stores/Download';
 
     const router = useRouter()
     const courseStore = useCoursesStore()
     const wsStore = useWsStore()
+    const downloadStore = useDownloadStore()
 
     const download = ref(false)
 
     function backHome() {
         courseStore.clearSelected()
         router.push({ name: 'home' })
+    }
+    function downloader() {
+        download.value = true
+        downloadStore.startDownload()
+    }
+    function cancelDownload() {
+        download.value = false
+        downloadStore.cancelDownload()
     }
     onMounted(() => {
         wsStore.reconnectWebsocket()
@@ -26,11 +36,13 @@
     watchEffect(() => {
         if (wsStore.messages?.type == 'getSelectedLesson' && wsStore.messages?.status == 'success') {
             Object.assign(courseStore.lessons, wsStore.messages.msg)
-            wsStore.messages = []
+            wsStore.messages.splice(0)
+            courseStore.getVideoLesson()
         }
         if (wsStore.messages?.type == 'getEachVideo' && wsStore.messages?.status == 'success') {
             Object.assign(courseStore.videoLessons, wsStore.messages.msg)
-            wsStore.messages = []
+            console.log('success assign each video')
+            wsStore.messages.splice(0)
         }
         if (wsStore.messages?.msg?.includes('timeout')) {
             courseStore.getLessons()
@@ -38,12 +50,15 @@
         if (wsStore.loading.length > 0) {
             setTimeout(() => {
                 wsStore.loading.shift()
-            }, 2000);
+            }, 5000);
         }
         if (wsStore.errorMsg.length > 0) {
             setTimeout(() => {
                 wsStore.errorMsg.shift()
             }, 5000);
+        }
+        if (wsStore.downloadLog?.status == 'success') {
+            download.value = false
         }
     })
 </script>
@@ -95,12 +110,12 @@
                 </div>
             </div>
         </div>
-        <div @click="courseStore.getVideoLesson"
+        <div v-if="courseStore.videoLessons.length > 0" @click="downloader"
             class="fixed bottom-0 w-full mt-4 p-2 rounded-t-lg bg-green-500 text-white text-center cursor-pointer text-2xl font-bold capitalize tracking-wide select-none">
             download</div>
     </div>
     <Overlay v-if="download" />
-    <Download v-if="download" @cancel="download = false" />
+    <Download v-if="download" @cancel="cancelDownload()" :data="wsStore.downloadLog" />
     <div class="fixed top-10 right-12 z-[999]">
         <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg?.splice(i, 1)" :isSuccess="false" />
         <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading?.splice(i, 1)" :isSuccess="true" />

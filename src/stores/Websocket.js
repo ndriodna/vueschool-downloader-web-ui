@@ -29,8 +29,8 @@ export const useWsStore = defineStore('websocket', () => {
                 messages.value = parseData
             } else if (parseData.status == 'loading') {
                 loading.value.push(parseData)
-            } else if (parseData.type == 'downloader') {
-                downloadLog.push(...parseData)
+            } else if (parseData.status == 'log') {
+                downloadLog.value.push(parseData)
             } else if (parseData.msg.includes('not found')) {
                 $cookies.remove('token_client')
                 router.push({ name: 'login' })

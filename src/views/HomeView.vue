@@ -20,15 +20,13 @@
   })
 
   watchEffect(() => {
-    if (!courseStore.isStorageExist()) {
-      courseStore.datas = []
-      if (wsStore.messages?.type == 'getCourses' && wsStore.messages?.status == 'success') {
-        courseStore.datas = wsStore.messages.msg
-        localStorage.setItem('courses', JSON.stringify(courseStore.datas))
-        wsStore.messages = []
-      }
+    if (wsStore.messages?.type == 'getCourses' && wsStore.messages?.status == 'success') {
+      courseStore.datas = wsStore.messages.msg
+      localStorage.setItem('courses', JSON.stringify(courseStore.datas))
+      wsStore.messages = []
     }
     if (wsStore.messages?.msg?.includes('timeout')) {
+      wsStore.errorMsg.push({ msg: 'retry scraping' })
       courseStore.getCourse()
     }
     if (wsStore.loading.length > 0) {

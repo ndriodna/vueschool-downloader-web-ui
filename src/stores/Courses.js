@@ -6,10 +6,10 @@ export const useCoursesStore = defineStore("courses", () => {
   const wsStore = useWsStore()
 
   const selected = ref([]);
-  const datas = reactive(JSON.parse(localStorage.getItem('courses')) || []);
+  const datas = ref(JSON.parse(localStorage.getItem('courses')) || []);
   const maxBatch = ref(3)
-  const lessons = reactive([])
-  const videoLessons = reactive([])
+  const lessons = ref([])
+  const videoLessons = ref([])
 
   function isStorageExist() {
     return localStorage.getItem('courses') ? true : false
@@ -17,7 +17,7 @@ export const useCoursesStore = defineStore("courses", () => {
   function getCourse() {
     if (!wsStore.isWsOpen()) return
     if (isStorageExist()) {
-      datas.splice(0, datas.length)
+      datas.value = []
       localStorage.removeItem('courses')
     }
     const token = $cookies.get('token_client')
@@ -30,14 +30,14 @@ export const useCoursesStore = defineStore("courses", () => {
       free: 'FREE'
     }
     if (cate in cat) {
-      return datas.filter((e) => e.cat == cat[cate])
+      return datas.value.filter((e) => e.cat == cat[cate])
     }
   }
   function orderByLesson(param) {
 
   }
   function isChecked(event) {
-    datas.map((val) =>
+    datas.value.map((val) =>
       val.id === event.id
         ? { ...val, checked: (val.checked = !event.checked) }
         : val
@@ -45,8 +45,8 @@ export const useCoursesStore = defineStore("courses", () => {
   }
   function clearSelected() {
     selected.value = []
-    lessons.splice(0)
-    datas.map((data) => (data.checked = false));
+    lessons.value = []
+    datas.value.map((data) => (data.checked = false));
   }
 
   function selectCourses(event) {
@@ -58,7 +58,7 @@ export const useCoursesStore = defineStore("courses", () => {
     isChecked(event);
   }
   function selectedCourses() {
-    return datas.filter((data) => selected.value.includes(data.id));
+    return datas.value.filter((data) => selected.value.includes(data.id));
   }
   function removeSelected(id) {
     if (selected.value.splice(id, 1)) {
@@ -68,16 +68,16 @@ export const useCoursesStore = defineStore("courses", () => {
 
   function getLessons() {
     if (!wsStore.isWsOpen()) return
-    lessons.splice(0)
+    lessons.value = []
     const token = $cookies.get('token_client')
     wsStore.socket.send(JSON.stringify({ type: 'getSelectedLesson', token: token, selected: selectedCourses() }))
   }
 
   function getVideoLesson() {
     if (!wsStore.isWsOpen()) return
-    videoLessons.splice(0)
+    videoLessons.value = []
     const token = $cookies.get('token_client')
-    wsStore.socket.send(JSON.stringify({ type: 'getEachVideo', token: token, videoLessons: lessons }))
+    wsStore.socket.send(JSON.stringify({ type: 'getEachVideo', token: token, videoLessons: lessons.value }))
   }
 
   return {

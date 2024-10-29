@@ -31,7 +31,7 @@
     async function loginBrowser() {
         wsStore.messages = []
         if (!auth.email?.includes('@')) {
-            wsStore.errorMsg.push({ msg: 'please fill your email', status: true })
+            wsStore.errorMsg.push({ msg: 'please fill your email', status: 'error' })
             return
         }
         try {
@@ -45,7 +45,7 @@
                 }
             }
         } catch (error) {
-            wsStore.errorMsg.push({ msg: error, status: true })
+            wsStore.errorMsg.push({ msg: error, status: 'error' })
         }
     }
 
@@ -60,7 +60,7 @@
             const token = wsStore.messages.msg
             if (token !== undefined) {
                 isLoading.value = false
-                wsStore.loading = ''
+                wsStore.loading = []
                 $cookies.set("token_client", token)
                 router.push({ name: "home" })
             }

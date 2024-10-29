@@ -31,18 +31,18 @@
         wsStore.reconnectWebsocket()
     })
     onUnmounted(() => {
-        courseStore.lessons.splice(0)
+        courseStore.lessons = []
     })
     watchEffect(() => {
         if (wsStore.messages?.type == 'getSelectedLesson' && wsStore.messages?.status == 'success') {
-            Object.assign(courseStore.lessons, wsStore.messages.msg)
-            wsStore.messages.splice(0)
+            courseStore.lessons = wsStore.messages.msg
+            wsStore.messages = []
             courseStore.getVideoLesson()
         }
         if (wsStore.messages?.type == 'getEachVideo' && wsStore.messages?.status == 'success') {
-            Object.assign(courseStore.videoLessons, wsStore.messages.msg)
+            courseStore.videoLessons = wsStore.messages.msg
             console.log('success assign each video')
-            wsStore.messages.splice(0)
+            wsStore.messages = []
         }
         if (wsStore.messages?.msg?.includes('timeout')) {
             courseStore.getLessons()
@@ -57,8 +57,9 @@
                 wsStore.errorMsg.shift()
             }, 5000);
         }
-        if (wsStore.downloadLog?.status == 'success') {
+        if (wsStore.messages?.status == 'success' && wsStore.messages?.type == 'downloader') {
             download.value = false
+            wsStore.downloadLog = []
         }
     })
 </script>

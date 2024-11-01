@@ -4,7 +4,7 @@
     import Download from '@/components/Download.vue'
     import Overlay from '@/components/Overlay.vue'
     import Notif from '@/components/Notif.vue';
-    import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
+    import { onMounted, onUnmounted, ref, useTemplateRef, watchEffect } from 'vue';
     import { useWsStore } from '@/stores/Websocket';
     import { useDownloadStore } from '@/stores/Download';
 
@@ -13,6 +13,7 @@
     const wsStore = useWsStore()
     const downloadStore = useDownloadStore()
 
+    const downloadRef = useTemplateRef('terminal')
     const download = ref(false)
 
     function backHome() {
@@ -41,7 +42,6 @@
         }
         if (wsStore.messages?.type == 'getEachVideo' && wsStore.messages?.status == 'success') {
             courseStore.videoLessons = wsStore.messages.msg
-            console.log('success assign each video')
             wsStore.messages = []
         }
         if (wsStore.messages?.msg?.includes('timeout')) {
@@ -58,8 +58,16 @@
             }, 5000);
         }
         if (wsStore.messages?.status == 'success' && wsStore.messages?.type == 'downloader') {
-            download.value = false
-            wsStore.downloadLog = []
+            wsStore.loading.push(wsStore.messages)
+            wsStore.loading.push(JSON.stringify({ msg: 'redirect to home' }))
+            setTimeout(() => {
+                download.value = false
+                wsStore.downloadLog = []
+                router.push({ name: 'home' })
+            }, 2000)
+        }
+        if (wsStore.downloadLog.length > 0) {
+            downloadRef.value.terminal.scrollTop = downloadRef.value.terminal.scrollHeight
         }
     })
 </script>
@@ -116,7 +124,7 @@
             download</div>
     </div>
     <Overlay v-if="download" />
-    <Download v-if="download" @cancel="cancelDownload()" :data="wsStore.downloadLog" />
+    <Download v-if="download" @cancel="cancelDownload()" :data="wsStore.downloadLog" ref="terminal" />
     <div class="fixed top-10 right-12 z-[999]">
         <Notif :datas="wsStore.errorMsg" @closeNotif="(i) => wsStore.errorMsg?.splice(i, 1)" :isSuccess="false" />
         <Notif :datas="wsStore.loading" @closeNotif="(i) => wsStore.loading?.splice(i, 1)" :isSuccess="true" />

@@ -1,60 +1,61 @@
-# vueschool-downloader-web-ui
+# VUESCHOOL DOWNLOADER WEB UI
 
-#### This Web UI version of [vueschool-downloader](https://github.com/ndriodna/vueschool-downloader)
+This project is a web-based UI web scraper, created to address the difficulty of finding open-source projects that can download video courses from the website [Vue School](https://vueschool.io/).
 
-## Recommended IDE Setup
+## Getting Started
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+These instructions will give you a copy of the project up and running on your local machine
 
-## Customize configuration
+### Prerequisites
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+- [Node js 18+](https://nodejs.org/en/download/package-manager)
+- NPM
 
-## Project Setup
+### Instalation
 
-```sh
-npm install
+1. Clone repo
+
+```
+git clone https://github.com/ndriodna/vueschool-downloader-web-ui
 ```
 
-### Compile and Hot-Reload for Development
+2. Install package
 
-```sh
+```
+ npm install
+```
+
+3. Run Project
+
+```
 npm run dev
 ```
 
-### Compile and Minify for Production
+4. Open Project
 
-```sh
-npm run build
+```
+http://localhost:5173/
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+<br>
 
-```sh
-npm run test:unit
-```
+## Preview
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+![preview](screenshot/home.png)
+<img src="screenshot/home.png" width=500/>
 
-```sh
-# Install browsers for the first run
-npx playwright install
+## API Installation check here 👇
 
-# When testing on CI, must build the project first
-npm run build
+> https://github.com/ndriodna/api-vueschool-downloader
 
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
+<br>
 
-### Lint with [ESLint](https://eslint.org/)
+## Credits
 
-```sh
-npm run lint
-```
+This software uses the following open source packages:
+
+- [vue](https://vuejs.org/)
+- [axios](https://axios-http.com/)
+- [pinia](https://pinia.vuejs.org/)
+- [vue-cookies](github.com/cmp-cc/vue-cookies)
+- [vue-router](https://router.vuejs.org/)

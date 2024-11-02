@@ -41,8 +41,9 @@ http://localhost:5173/
 
 ## Preview
 
-![preview](screenshot/home.png)
 <img src="screenshot/home.png" width=500/>
+
+others preview 👉 [screenshot](https://github.com/ndriodna/vueschool-downloader-web-ui/screenshot)
 
 ## API Installation check here 👇
 

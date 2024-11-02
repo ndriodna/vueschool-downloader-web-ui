@@ -1,5 +1,5 @@
 # PREVIEW
-![Login](screenshot/login.png)
-![Home](screenshot/home.png)
-![Selected Course](screenshot/selected.png)
-![Download](screenshot/download.png)
+![Login](login.png)
+![Home](home.png)
+![Selected Course](selected.png)
+![Download](download.png)
